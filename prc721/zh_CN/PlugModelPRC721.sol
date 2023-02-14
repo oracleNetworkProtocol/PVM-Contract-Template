@@ -4,7 +4,7 @@ pragma solidity ^0.8.4;
 
 import "./PRC721.sol";
 
-contract WTFApe is PRC721{
+contract PlugModelPRC721 is PRC721{
     uint public MAX_APES = 10000; // 总量
 
     // 构造函数
@@ -13,7 +13,7 @@ contract WTFApe is PRC721{
 
     //BAYC的baseURI为ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/ 
     function _baseURI() internal pure override returns (string memory) {
-        return "ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/";
+        return "";
     }
     
     // 铸造函数
