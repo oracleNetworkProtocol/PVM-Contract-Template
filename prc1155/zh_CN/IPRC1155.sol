@@ -4,10 +4,10 @@ pragma solidity ^0.8.0;
 import "../../prc721/zh_CN/IPRC165.sol";
 
 /**
- * @dev PRC11155标准的接口合约，实现了EIP1155的功能
+ * @dev PRC1155标准的接口合约，实现了EIP1155的功能
  * 详见：https://eips.ethereum.org/EIPS/eip-1155[EIP].
  */
-interface IPRC11155 is IPRC165 {
+interface IPRC1155 is IPRC165 {
     /**
      * @dev 单类代币转账事件
      * 当`value`个`id`种类的代币被`operator`从`from`转账到`to`时释放.
@@ -68,7 +68,7 @@ interface IPRC11155 is IPRC165 {
      * 要求:
      * - 如果调用者不是`from`地址而是授权地址，则需要得到`from`的授权
      * - `from`地址必须有足够的持仓
-     * - 如果接收方是合约，需要实现`IPRC11155Receiver`的`onPRC11155Received`方法，并返回相应的值
+     * - 如果接收方是合约，需要实现`IPRC1155Receiver`的`onPRC1155Received`方法，并返回相应的值
      */
     function safeTransferFrom(
         address from,
@@ -83,7 +83,7 @@ interface IPRC11155 is IPRC165 {
      * 释放{TransferBatch}事件
      * 要求：
      * - `ids`和`amounts`长度相等
-     * - 如果接收方是合约，需要实现`IPRC11155Receiver`的`onPRC11155BatchReceived`方法，并返回相应的值
+     * - 如果接收方是合约，需要实现`IPRC1155Receiver`的`onPRC1155BatchReceived`方法，并返回相应的值
      */
     function safeBatchTransferFrom(
         address from,

@@ -4,14 +4,14 @@ pragma solidity ^0.8.0;
 import "../../prc721/zh_CN/IPRC165.sol";
 
 /**
- * @dev PRC11155接收合约，要接受PRC11155的安全转账，需要实现这个合约
+ * @dev PRC1155接收合约，要接受PRC1155的安全转账，需要实现这个合约
  */
-interface IPRC11155Receiver is IPRC165 {
+interface IPRC1155Receiver is IPRC165 {
     /**
-     * @dev 接受PRC11155安全转账`safeTransferFrom` 
-     * 需要返回 0xf23a6e61 或 `bytes4(keccak256("onPRC11155Received(address,address,uint256,uint256,bytes)"))`
+     * @dev 接受PRC1155安全转账`safeTransferFrom` 
+     * 需要返回 0xf23a6e61 或 `bytes4(keccak256("onPRC1155Received(address,address,uint256,uint256,bytes)"))`
      */
-    function onPRC11155Received(
+    function onPRC1155Received(
         address operator,
         address from,
         uint256 id,
@@ -20,10 +20,10 @@ interface IPRC11155Receiver is IPRC165 {
     ) external returns (bytes4);
 
     /**
-     * @dev 接受PRC11155批量安全转账`safeBatchTransferFrom` 
-     * 需要返回 0xbc197c81 或 `bytes4(keccak256("onPRC11155BatchReceived(address,address,uint256[],uint256[],bytes)"))`
+     * @dev 接受PRC1155批量安全转账`safeBatchTransferFrom` 
+     * 需要返回 0xbc197c81 或 `bytes4(keccak256("onPRC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))`
      */
-    function onPRC11155BatchReceived(
+    function onPRC1155BatchReceived(
         address operator,
         address from,
         uint256[] calldata ids,

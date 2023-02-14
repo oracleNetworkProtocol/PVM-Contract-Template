@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./IPRC11155.sol";
-import "./IPRC11155Receiver.sol";
-import "./IPRC11155MetadataURI.sol";
+import "./IPRC1155.sol";
+import "./IPRC1155Receiver.sol";
+import "./IPRC1155MetadataURI.sol";
 import "../../prc721/zh_CN/Address.sol";
 import "../../prc721/zh_CN/String.sol";
 import "../../prc721/zh_CN/IPRC165.sol";
 
 /**
- * @dev PRC11155多代币标准
+ * @dev PRC1155多代币标准
  * 见 https://eips.ethereum.org/EIPS/eip-1155
  */
-contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
+contract PRC1155 is IPRC165, IPRC1155, IPRC1155MetadataURI {
     using Address for address; // 使用Address库，用isContract来判断地址是否为合约
     using Strings for uint256; // 使用String库
     // Token名称
@@ -37,16 +37,16 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return
-            interfaceId == type(IPRC11155).interfaceId ||
-            interfaceId == type(IPRC11155MetadataURI).interfaceId ||
+            interfaceId == type(IPRC1155).interfaceId ||
+            interfaceId == type(IPRC1155MetadataURI).interfaceId ||
             interfaceId == type(IPRC165).interfaceId;
     }
 
     /**
-     * @dev 持仓查询 实现IPRC11155的balanceOf，返回account地址的id种类代币持仓量。
+     * @dev 持仓查询 实现IPRC1155的balanceOf，返回account地址的id种类代币持仓量。
      */
     function balanceOf(address account, uint256 id) public view virtual override returns (uint256) {
-        require(account != address(0), "PRC11155: address zero is not a valid owner");
+        require(account != address(0), "PRC1155: address zero is not a valid owner");
         return _balances[id][account];
     }
 
@@ -59,7 +59,7 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
         public view virtual override
         returns (uint256[] memory)
     {
-        require(accounts.length == ids.length, "PRC11155: accounts and ids length mismatch");
+        require(accounts.length == ids.length, "PRC1155: accounts and ids length mismatch");
         uint256[] memory batchBalances = new uint256[](accounts.length);
         for (uint256 i = 0; i < accounts.length; ++i) {
             batchBalances[i] = balanceOf(accounts[i], ids[i]);
@@ -73,7 +73,7 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
      * 条件：msg.sender != operator
      */
     function setApprovalForAll(address operator, bool approved) public virtual override {
-        require(msg.sender != operator, "PRC11155: setting approval status for self");
+        require(msg.sender != operator, "PRC1155: setting approval status for self");
         _operatorApprovals[msg.sender][operator] = approved;
         emit ApprovalForAll(msg.sender, operator, approved);
     }
@@ -91,7 +91,7 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
      * 要求:
      * - to 不能是0地址.
      * - from拥有足够的持仓量，且调用者拥有授权
-     * - 如果 to 是智能合约, 他必须支持 IPRC11155Receiver-onPRC11155Received.
+     * - 如果 to 是智能合约, 他必须支持 IPRC1155Receiver-onPRC1155Received.
      */
     function safeTransferFrom(
         address from,
@@ -104,12 +104,12 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
         // 调用者是持有者或是被授权
         require(
             from == operator || isApprovedForAll(from, operator),
-            "PRC11155: caller is not token owner nor approved"
+            "PRC1155: caller is not token owner nor approved"
         );
-        require(to != address(0), "PRC11155: transfer to the zero address");
+        require(to != address(0), "PRC1155: transfer to the zero address");
         // from地址有足够持仓
         uint256 fromBalance = _balances[id][from];
-        require(fromBalance >= amount, "PRC11155: insufficient balance for transfer");
+        require(fromBalance >= amount, "PRC1155: insufficient balance for transfer");
         // 更新持仓量
         unchecked {
             _balances[id][from] = fromBalance - amount;
@@ -127,7 +127,7 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
      * 要求:
      * - to 不能是0地址.
      * - from拥有足够的持仓量，且调用者拥有授权
-     * - 如果 to 是智能合约, 他必须支持 IPRC11155Receiver-onPRC11155BatchReceived.
+     * - 如果 to 是智能合约, 他必须支持 IPRC1155Receiver-onPRC1155BatchReceived.
      * - ids和amounts数组长度相等
      */
     function safeBatchTransferFrom(
@@ -141,10 +141,10 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
         // 调用者是持有者或是被授权
         require(
             from == operator || isApprovedForAll(from, operator),
-            "PRC11155: caller is not token owner nor approved"
+            "PRC1155: caller is not token owner nor approved"
         );
-        require(ids.length == amounts.length, "PRC11155: ids and amounts length mismatch");
-        require(to != address(0), "PRC11155: transfer to the zero address");
+        require(ids.length == amounts.length, "PRC1155: ids and amounts length mismatch");
+        require(to != address(0), "PRC1155: transfer to the zero address");
 
         // 通过for循环更新持仓  
         for (uint256 i = 0; i < ids.length; ++i) {
@@ -152,7 +152,7 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
             uint256 amount = amounts[i];
 
             uint256 fromBalance = _balances[id][from];
-            require(fromBalance >= amount, "PRC11155: insufficient balance for transfer");
+            require(fromBalance >= amount, "PRC1155: insufficient balance for transfer");
             unchecked {
                 _balances[id][from] = fromBalance - amount;
             }
@@ -174,7 +174,7 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
         uint256 amount,
         bytes memory data
     ) internal virtual {
-        require(to != address(0), "PRC11155: mint to the zero address");
+        require(to != address(0), "PRC1155: mint to the zero address");
 
         address operator = msg.sender;
 
@@ -194,8 +194,8 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
         uint256[] memory amounts,
         bytes memory data
     ) internal virtual {
-        require(to != address(0), "PRC11155: mint to the zero address");
-        require(ids.length == amounts.length, "PRC11155: ids and amounts length mismatch");
+        require(to != address(0), "PRC1155: mint to the zero address");
+        require(ids.length == amounts.length, "PRC1155: ids and amounts length mismatch");
 
         address operator = msg.sender;
 
@@ -216,12 +216,12 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
         uint256 id,
         uint256 amount
     ) internal virtual {
-        require(from != address(0), "PRC11155: burn from the zero address");
+        require(from != address(0), "PRC1155: burn from the zero address");
 
         address operator = msg.sender;
 
         uint256 fromBalance = _balances[id][from];
-        require(fromBalance >= amount, "PRC11155: burn amount exceeds balance");
+        require(fromBalance >= amount, "PRC1155: burn amount exceeds balance");
         unchecked {
             _balances[id][from] = fromBalance - amount;
         }
@@ -237,8 +237,8 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
         uint256[] memory ids,
         uint256[] memory amounts
     ) internal virtual {
-        require(from != address(0), "PRC11155: burn from the zero address");
-        require(ids.length == amounts.length, "PRC11155: ids and amounts length mismatch");
+        require(from != address(0), "PRC1155: burn from the zero address");
+        require(ids.length == amounts.length, "PRC1155: ids and amounts length mismatch");
 
         address operator = msg.sender;
 
@@ -247,7 +247,7 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
             uint256 amount = amounts[i];
 
             uint256 fromBalance = _balances[id][from];
-            require(fromBalance >= amount, "PRC11155: burn amount exceeds balance");
+            require(fromBalance >= amount, "PRC1155: burn amount exceeds balance");
             unchecked {
                 _balances[id][from] = fromBalance - amount;
             }
@@ -256,7 +256,7 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
         emit TransferBatch(operator, from, address(0), ids, amounts);
     }
 
-    // @dev PRC11155的安全转账检查
+    // @dev PRC1155的安全转账检查
     function _doSafeTransferAcceptanceCheck(
         address operator,
         address from,
@@ -266,19 +266,19 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
         bytes memory data
     ) private {
         if (to.isContract()) {
-            try IPRC11155Receiver(to).onPRC11155Received(operator, from, id, amount, data) returns (bytes4 response) {
-                if (response != IPRC11155Receiver.onPRC11155Received.selector) {
-                    revert("PRC11155: PRC11155Receiver rejected tokens");
+            try IPRC1155Receiver(to).onPRC1155Received(operator, from, id, amount, data) returns (bytes4 response) {
+                if (response != IPRC1155Receiver.onPRC1155Received.selector) {
+                    revert("PRC1155: PRC1155Receiver rejected tokens");
                 }
             } catch Error(string memory reason) {
                 revert(reason);
             } catch {
-                revert("PRC11155: transfer to non-PRC11155Receiver implementer");
+                revert("PRC1155: transfer to non-PRC1155Receiver implementer");
             }
         }
     }
 
-    // @dev PRC11155的批量安全转账检查
+    // @dev PRC1155的批量安全转账检查
     function _doSafeBatchTransferAcceptanceCheck(
         address operator,
         address from,
@@ -288,22 +288,22 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
         bytes memory data
     ) private {
         if (to.isContract()) {
-            try IPRC11155Receiver(to).onPRC11155BatchReceived(operator, from, ids, amounts, data) returns (
+            try IPRC1155Receiver(to).onPRC1155BatchReceived(operator, from, ids, amounts, data) returns (
                 bytes4 response
             ) {
-                if (response != IPRC11155Receiver.onPRC11155BatchReceived.selector) {
-                    revert("PRC11155: PRC11155Receiver rejected tokens");
+                if (response != IPRC1155Receiver.onPRC1155BatchReceived.selector) {
+                    revert("PRC1155: PRC1155Receiver rejected tokens");
                 }
             } catch Error(string memory reason) {
                 revert(reason);
             } catch {
-                revert("PRC11155: transfer to non-PRC11155Receiver implementer");
+                revert("PRC1155: transfer to non-PRC1155Receiver implementer");
             }
         }
     }
 
     /**
-     * @dev 返回PRC11155的id种类代币的uri，存储metadata，类似ERC721的tokenURI.
+     * @dev 返回PRC1155的id种类代币的uri，存储metadata，类似ERC721的tokenURI.
      */
     function uri(uint256 id) public view virtual override returns (string memory) {
         string memory baseURI = _baseURI();

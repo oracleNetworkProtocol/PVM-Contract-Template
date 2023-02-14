@@ -2,12 +2,12 @@
 // by 0xAA
 pragma solidity ^0.8.4;
 
-import "./PRC11155.sol";
+import "./PRC1155.sol";
 
-contract PLUGModelPRC1155 is PRC11155{
+contract PLUGModelPRC1155 is PRC1155{
     uint256 constant MAX_ID = 10000; 
     // 构造函数
-    constructor() PRC11155("PLUGModelPRC1155", "PLUGModelPRC1155"){
+    constructor() PRC1155("PLUGModelPRC1155", "PLUGModelPRC1155"){
     }
 
     //的baseURI为ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/ 

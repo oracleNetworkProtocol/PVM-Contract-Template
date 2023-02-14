@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "../../prc721/en_US/IPRC165.sol";
 
 
-interface IPRC11155 is IPRC165 {
+interface IPRC1155 is IPRC165 {
     event TransferSingle(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 value);
     event TransferBatch(
         address indexed operator,

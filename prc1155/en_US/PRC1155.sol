@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./IPRC11155.sol";
-import "./IPRC11155Receiver.sol";
-import "./IPRC11155MetadataURI.sol";
+import "./IPRC1155.sol";
+import "./IPRC1155Receiver.sol";
+import "./IPRC1155MetadataURI.sol";
 import "../../prc721/en_US/Address.sol";
 import "../../prc721/en_US/String.sol";
 import "../../prc721/en_US/IPRC165.sol";
 
-contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
+contract PRC1155 is IPRC165, IPRC1155, IPRC1155MetadataURI {
     using Address for address; 
     using Strings for uint256;
     string public name;
@@ -26,13 +26,13 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
         return
-            interfaceId == type(IPRC11155).interfaceId ||
-            interfaceId == type(IPRC11155MetadataURI).interfaceId ||
+            interfaceId == type(IPRC1155).interfaceId ||
+            interfaceId == type(IPRC1155MetadataURI).interfaceId ||
             interfaceId == type(IPRC165).interfaceId;
     }
 
     function balanceOf(address account, uint256 id) public view virtual override returns (uint256) {
-        require(account != address(0), "PRC11155: address zero is not a valid owner");
+        require(account != address(0), "PRC1155: address zero is not a valid owner");
         return _balances[id][account];
     }
 
@@ -40,7 +40,7 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
         public view virtual override
         returns (uint256[] memory)
     {
-        require(accounts.length == ids.length, "PRC11155: accounts and ids length mismatch");
+        require(accounts.length == ids.length, "PRC1155: accounts and ids length mismatch");
         uint256[] memory batchBalances = new uint256[](accounts.length);
         for (uint256 i = 0; i < accounts.length; ++i) {
             batchBalances[i] = balanceOf(accounts[i], ids[i]);
@@ -49,7 +49,7 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
     }
 
     function setApprovalForAll(address operator, bool approved) public virtual override {
-        require(msg.sender != operator, "PRC11155: setting approval status for self");
+        require(msg.sender != operator, "PRC1155: setting approval status for self");
         _operatorApprovals[msg.sender][operator] = approved;
         emit ApprovalForAll(msg.sender, operator, approved);
     }
@@ -68,11 +68,11 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
         address operator = msg.sender;
         require(
             from == operator || isApprovedForAll(from, operator),
-            "PRC11155: caller is not token owner nor approved"
+            "PRC1155: caller is not token owner nor approved"
         );
-        require(to != address(0), "PRC11155: transfer to the zero address");
+        require(to != address(0), "PRC1155: transfer to the zero address");
         uint256 fromBalance = _balances[id][from];
-        require(fromBalance >= amount, "PRC11155: insufficient balance for transfer");
+        require(fromBalance >= amount, "PRC1155: insufficient balance for transfer");
         unchecked {
             _balances[id][from] = fromBalance - amount;
         }
@@ -91,17 +91,17 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
         address operator = msg.sender;
         require(
             from == operator || isApprovedForAll(from, operator),
-            "PRC11155: caller is not token owner nor approved"
+            "PRC1155: caller is not token owner nor approved"
         );
-        require(ids.length == amounts.length, "PRC11155: ids and amounts length mismatch");
-        require(to != address(0), "PRC11155: transfer to the zero address");
+        require(ids.length == amounts.length, "PRC1155: ids and amounts length mismatch");
+        require(to != address(0), "PRC1155: transfer to the zero address");
 
         for (uint256 i = 0; i < ids.length; ++i) {
             uint256 id = ids[i];
             uint256 amount = amounts[i];
 
             uint256 fromBalance = _balances[id][from];
-            require(fromBalance >= amount, "PRC11155: insufficient balance for transfer");
+            require(fromBalance >= amount, "PRC1155: insufficient balance for transfer");
             unchecked {
                 _balances[id][from] = fromBalance - amount;
             }
@@ -118,7 +118,7 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
         uint256 amount,
         bytes memory data
     ) internal virtual {
-        require(to != address(0), "PRC11155: mint to the zero address");
+        require(to != address(0), "PRC1155: mint to the zero address");
 
         address operator = msg.sender;
 
@@ -134,8 +134,8 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
         uint256[] memory amounts,
         bytes memory data
     ) internal virtual {
-        require(to != address(0), "PRC11155: mint to the zero address");
-        require(ids.length == amounts.length, "PRC11155: ids and amounts length mismatch");
+        require(to != address(0), "PRC1155: mint to the zero address");
+        require(ids.length == amounts.length, "PRC1155: ids and amounts length mismatch");
 
         address operator = msg.sender;
 
@@ -153,12 +153,12 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
         uint256 id,
         uint256 amount
     ) internal virtual {
-        require(from != address(0), "PRC11155: burn from the zero address");
+        require(from != address(0), "PRC1155: burn from the zero address");
 
         address operator = msg.sender;
 
         uint256 fromBalance = _balances[id][from];
-        require(fromBalance >= amount, "PRC11155: burn amount exceeds balance");
+        require(fromBalance >= amount, "PRC1155: burn amount exceeds balance");
         unchecked {
             _balances[id][from] = fromBalance - amount;
         }
@@ -170,8 +170,8 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
         uint256[] memory ids,
         uint256[] memory amounts
     ) internal virtual {
-        require(from != address(0), "PRC11155: burn from the zero address");
-        require(ids.length == amounts.length, "PRC11155: ids and amounts length mismatch");
+        require(from != address(0), "PRC1155: burn from the zero address");
+        require(ids.length == amounts.length, "PRC1155: ids and amounts length mismatch");
 
         address operator = msg.sender;
 
@@ -180,7 +180,7 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
             uint256 amount = amounts[i];
 
             uint256 fromBalance = _balances[id][from];
-            require(fromBalance >= amount, "PRC11155: burn amount exceeds balance");
+            require(fromBalance >= amount, "PRC1155: burn amount exceeds balance");
             unchecked {
                 _balances[id][from] = fromBalance - amount;
             }
@@ -198,14 +198,14 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
         bytes memory data
     ) private {
         if (to.isContract()) {
-            try IPRC11155Receiver(to).onPRC11155Received(operator, from, id, amount, data) returns (bytes4 response) {
-                if (response != IPRC11155Receiver.onPRC11155Received.selector) {
-                    revert("PRC11155: PRC11155Receiver rejected tokens");
+            try IPRC1155Receiver(to).onPRC1155Received(operator, from, id, amount, data) returns (bytes4 response) {
+                if (response != IPRC1155Receiver.onPRC1155Received.selector) {
+                    revert("PRC1155: PRC1155Receiver rejected tokens");
                 }
             } catch Error(string memory reason) {
                 revert(reason);
             } catch {
-                revert("PRC11155: transfer to non-PRC11155Receiver implementer");
+                revert("PRC1155: transfer to non-PRC1155Receiver implementer");
             }
         }
     }
@@ -219,16 +219,16 @@ contract PRC11155 is IPRC165, IPRC11155, IPRC11155MetadataURI {
         bytes memory data
     ) private {
         if (to.isContract()) {
-            try IPRC11155Receiver(to).onPRC11155BatchReceived(operator, from, ids, amounts, data) returns (
+            try IPRC1155Receiver(to).onPRC1155BatchReceived(operator, from, ids, amounts, data) returns (
                 bytes4 response
             ) {
-                if (response != IPRC11155Receiver.onPRC11155BatchReceived.selector) {
-                    revert("PRC11155: PRC11155Receiver rejected tokens");
+                if (response != IPRC1155Receiver.onPRC1155BatchReceived.selector) {
+                    revert("PRC1155: PRC1155Receiver rejected tokens");
                 }
             } catch Error(string memory reason) {
                 revert(reason);
             } catch {
-                revert("PRC11155: transfer to non-PRC11155Receiver implementer");
+                revert("PRC1155: transfer to non-PRC1155Receiver implementer");
             }
         }
     }
